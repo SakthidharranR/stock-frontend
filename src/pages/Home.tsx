@@ -1,8 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import './Login.css'
 
 export function Home() {
   const { email, clearSession } = useAuth()
+  const location = useLocation()
+  const syncWarning =
+    (location.state as { syncWarning?: string } | null)?.syncWarning ?? null
 
   return (
     <div className="home-page">
@@ -15,10 +19,11 @@ export function Home() {
       <main className="home-main">
         <h1>You&apos;re signed in</h1>
         <p className="home-email">{email}</p>
-        <p className="home-hint">
-          Identity service sync comes next after you build{' '}
-          <code>stock-backend/services/identity</code>.
-        </p>
+        {syncWarning ? (
+          <div className="login-alert" role="alert">
+            Account created, but profile sync failed: {syncWarning}
+          </div>
+        ) : null}
         <Link to="/change-password" className="home-link">
           Change password
         </Link>

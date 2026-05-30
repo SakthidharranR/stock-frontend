@@ -4,7 +4,7 @@ import {
   CognitoUserAttribute,
   CognitoUserPool,
 } from 'amazon-cognito-identity-js'
-import { getCognitoConfig } from './cognitoConfig'
+import { getCognitoConfig, isDevAuthBypass } from './cognitoConfig'
 
 export type AuthTokens = {
   accessToken: string
@@ -23,6 +23,9 @@ export type SignInResult =
 let userPool: CognitoUserPool | null = null
 
 function getUserPool(): CognitoUserPool {
+  if (isDevAuthBypass()) {
+    throw new Error('Cognito is disabled in dev mode (VITE_DEV_SKIP_COGNITO=true).')
+  }
   if (!userPool) {
     const { userPoolId, clientId } = getCognitoConfig()
     userPool = new CognitoUserPool({
@@ -70,6 +73,12 @@ function mapCognitoError(err: unknown): string {
   }
   if (message.includes('LimitExceededException')) {
     return 'Too many requests. Wait a few minutes and try again.'
+  }
+  if (message.includes('UserNotFoundException')) {
+    return 'No account found with this email.'
+  }
+  if (message.includes('NotAuthorizedException')) {
+    return 'Current password is incorrect.'
   }
 
   return message
@@ -164,6 +173,7 @@ const PENDING_SIGNUP_KEY = 'stock_pending_signup'
 export type PendingSignUp = {
   email: string
   password: string
+  cognitoSub: string
 }
 
 export function storePendingSignUp(data: PendingSignUp): void {
@@ -230,11 +240,153 @@ export function signIn(email: string, password: string): Promise<SignInResult> {
 }
 
 export function signOut(): void {
+  if (isDevAuthBypass()) {
+    return
+  }
+  clearPendingNewPasswordChallenge()
   const pool = getUserPool()
   const user = pool.getCurrentUser()
   if (user) {
     user.signOut()
   }
+}
+
+let pendingNewPasswordUser: CognitoUser | null = null
+let pendingNewPasswordEmail: string | null = null
+
+export function storePendingNewPasswordChallenge(
+  cognitoUser: CognitoUser,
+  email: string,
+): void {
+  pendingNewPasswordUser = cognitoUser
+  pendingNewPasswordEmail = email.trim().toLowerCase()
+}
+
+export function getPendingNewPasswordChallenge(): {
+  cognitoUser: CognitoUser
+  email: string
+} | null {
+  if (pendingNewPasswordUser && pendingNewPasswordEmail) {
+    return {
+      cognitoUser: pendingNewPasswordUser,
+      email: pendingNewPasswordEmail,
+    }
+  }
+  return null
+}
+
+export function clearPendingNewPasswordChallenge(): void {
+  pendingNewPasswordUser = null
+  pendingNewPasswordEmail = null
+}
+
+function sanitizeRequiredAttributes(
+  userAttributes: Record<string, string>,
+): Record<string, string> {
+  const attrs = { ...userAttributes }
+  delete attrs.email
+  delete attrs.email_verified
+  delete attrs.phone_number
+  delete attrs.phone_number_verified
+  return attrs
+}
+
+export function completeNewPasswordChallenge(
+  cognitoUser: CognitoUser,
+  newPassword: string,
+  userAttributes: Record<string, string> = {},
+): Promise<{ tokens: AuthTokens; email: string }> {
+  const requiredAttributes = sanitizeRequiredAttributes(userAttributes)
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.completeNewPasswordChallenge(
+      newPassword,
+      requiredAttributes,
+      {
+        onSuccess: (session) => {
+          const fallbackEmail =
+            pendingNewPasswordEmail ?? cognitoUser.getUsername()
+          clearPendingNewPasswordChallenge()
+          const accessToken = session.getAccessToken().getJwtToken()
+          const idToken = session.getIdToken().getJwtToken()
+          const refreshToken = session.getRefreshToken().getToken()
+          const email =
+            session.getIdToken().payload.email?.toString() ?? fallbackEmail
+
+          resolve({
+            email: email.toLowerCase(),
+            tokens: { accessToken, idToken, refreshToken },
+          })
+        },
+        onFailure: (err) => {
+          reject(new Error(mapCognitoError(err)))
+        },
+      },
+    )
+  })
+}
+
+export function forgotPassword(email: string): Promise<void> {
+  const normalizedEmail = email.trim().toLowerCase()
+  const cognitoUser = new CognitoUser({
+    Username: normalizedEmail,
+    Pool: getUserPool(),
+  })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.forgotPassword({
+      onSuccess: () => resolve(),
+      onFailure: (err) => reject(new Error(mapCognitoError(err))),
+    })
+  })
+}
+
+export function confirmForgotPassword(
+  email: string,
+  code: string,
+  newPassword: string,
+): Promise<void> {
+  const normalizedEmail = email.trim().toLowerCase()
+  const cognitoUser = new CognitoUser({
+    Username: normalizedEmail,
+    Pool: getUserPool(),
+  })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.confirmPassword(code.trim(), newPassword, {
+      onSuccess: () => resolve(),
+      onFailure: (err) => reject(new Error(mapCognitoError(err))),
+    })
+  })
+}
+
+export function changePassword(
+  oldPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const cognitoUser = getUserPool().getCurrentUser()
+  if (!cognitoUser) {
+    return Promise.reject(
+      new Error('You are not signed in. Log in again to change your password.'),
+    )
+  }
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.getSession((sessionErr: Error | null) => {
+      if (sessionErr) {
+        reject(new Error(mapCognitoError(sessionErr)))
+        return
+      }
+
+      cognitoUser.changePassword(oldPassword, newPassword, (err) => {
+        if (err) {
+          reject(new Error(mapCognitoError(err)))
+          return
+        }
+        resolve()
+      })
+    })
+  })
 }
 
 export function getCurrentCognitoUser(): CognitoUser | null {

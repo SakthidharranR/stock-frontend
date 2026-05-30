@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react'
 import { signOut as cognitoSignOut, type AuthTokens } from '../lib/cognito'
+import { isDevAuthBypass } from '../lib/cognitoConfig'
 
 const STORAGE_KEY = 'stock_auth_session'
 
@@ -44,7 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const clearSession = useCallback(() => {
-    cognitoSignOut()
+    if (!isDevAuthBypass()) {
+      cognitoSignOut()
+    }
     sessionStorage.removeItem(STORAGE_KEY)
     setSessionState(null)
   }, [])
