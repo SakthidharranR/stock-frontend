@@ -37,6 +37,8 @@ After the first Actions run appears:
 
 Until this is on, people can still merge with failing tests.
 
+Import file: [`.github/rulesets/require-test.json`](.github/rulesets/require-test.json) — GitHub → **Settings → Rules → New ruleset → Import a ruleset**.
+
 ## IAM (minimum)
 
 Allow `s3:ListBucket` on `arn:aws:s3:::stock-app-spa-sakthi-211125434900`, `s3:GetObject` / `PutObject` / `DeleteObject` on `arn:aws:s3:::stock-app-spa-sakthi-211125434900/*`, and `cloudfront:CreateInvalidation` on distribution `E3ODP6EPFAJSK1`.
