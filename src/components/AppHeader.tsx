@@ -62,7 +62,7 @@ export function AppHeader({
           navigate('/login', { replace: true })
         }}
       >
-        Log out
+        Log Out
       </button>
     </header>
   )
