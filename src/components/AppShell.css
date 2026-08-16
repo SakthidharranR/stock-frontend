@@ -22,11 +22,11 @@
 
 .app-sidebar-brand {
   padding: 0.35rem 0.7rem;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--color-accent);
   text-decoration: none;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
 }
 
 .app-sidebar-nav {

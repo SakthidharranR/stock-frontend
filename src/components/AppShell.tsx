@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { AppHeader } from './AppHeader'
+import { PRODUCT_NAME } from '../lib/brand'
 import './AppShell.css'
 
 const NAV = [
@@ -13,7 +14,7 @@ export function AppShell() {
     <div className="app-shell">
       <aside className="app-sidebar" aria-label="Main">
         <NavLink to="/home" className="app-sidebar-brand" end>
-          Stock
+          {PRODUCT_NAME}
         </NavLink>
         <nav className="app-sidebar-nav">
           {NAV.map((item) => (

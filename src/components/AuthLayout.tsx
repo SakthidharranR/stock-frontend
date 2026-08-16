@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom'
+import { PRODUCT_NAME } from '../lib/brand'
+import { AuthHero } from './AuthHero'
 import './AuthLayout.css'
 
 type AuthLayoutProps = {
@@ -11,20 +13,23 @@ type AuthLayoutProps = {
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <div className="auth-page">
-      <header className="auth-header">
-        <Link to="/login" className="auth-brand">
-          Stock
-        </Link>
-      </header>
+      <AuthHero />
+      <div className="auth-panel">
+        <header className="auth-header">
+          <Link to="/login" className="auth-brand">
+            {PRODUCT_NAME}
+          </Link>
+        </header>
 
-      <main className="auth-main">
-        <div className="auth-card">
-          <h1 className="auth-title">{title}</h1>
-          {subtitle ? <p className="auth-subtitle">{subtitle}</p> : null}
-          {children}
-        </div>
-        {footer ? <div className="auth-footer">{footer}</div> : null}
-      </main>
+        <main className="auth-main">
+          <div className="auth-card">
+            <h1 className="auth-title">{title}</h1>
+            {subtitle ? <p className="auth-subtitle">{subtitle}</p> : null}
+            {children}
+          </div>
+          {footer ? <div className="auth-footer">{footer}</div> : null}
+        </main>
+      </div>
     </div>
   )
 }

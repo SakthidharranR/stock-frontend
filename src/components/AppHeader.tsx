@@ -1,7 +1,6 @@
 import { type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import './AppHeader.css'
+import { PRODUCT_NAME } from '../lib/brand'
 
 type AppHeaderProps = {
   showBack?: boolean
@@ -37,7 +36,7 @@ export function AppHeader({
         ) : null}
         {showBrand ? (
           <Link to="/home" className="app-header-brand">
-            Stock
+            {PRODUCT_NAME}
           </Link>
         ) : (
           <span className="app-header-spacer" aria-hidden />
