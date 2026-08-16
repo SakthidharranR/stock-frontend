@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+  deploy:
+    name: deploy
+    needs: test
+    if: >-
+      github.event_name == 'push' &&
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    env:
+      VITE_COGNITO_REGION: ${{ secrets.VITE_COGNITO_REGION }}
+      VITE_COGNITO_USER_POOL_ID: ${{ secrets.VITE_COGNITO_USER_POOL_ID }}
+      VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID }}
+      VITE_COGNITO_DOMAIN: ${{ secrets.VITE_COGNITO_DOMAIN }}
+      VITE_COGNITO_OAUTH_REDIRECT_URI: ${{ secrets.VITE_COGNITO_OAUTH_REDIRECT_URI }}
+      VITE_COGNITO_OAUTH_SCOPES: ${{ secrets.VITE_COGNITO_OAUTH_SCOPES }}
+      VITE_IDENTITY_API_URL: ${{ secrets.VITE_IDENTITY_API_URL }}
+      VITE_MARKET_API_URL: ${{ secrets.VITE_MARKET_API_URL }}
+      VITE_PORTFOLIO_API_URL: ${{ secrets.VITE_PORTFOLIO_API_URL }}
+      VITE_DEV_SKIP_COGNITO: "false"
+      S3_BUCKET: stock-app-spa-sakthi-211125434900
+      CLOUDFRONT_DISTRIBUTION_ID: E3ODP6EPFAJSK1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require production secrets
+        run: |
+          missing=0
+          for key in VITE_COGNITO_USER_POOL_ID VITE_COGNITO_CLIENT_ID VITE_COGNITO_DOMAIN \
+            VITE_COGNITO_OAUTH_REDIRECT_URI VITE_IDENTITY_API_URL VITE_MARKET_API_URL \
+            VITE_PORTFOLIO_API_URL AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY; do
+            eval "val=\${$key}"
+            if [ -z "$val" ]; then
+              echo "Missing secret or env: $key"
+              missing=1
+            fi
+          done
+          exit $missing
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Sync to S3 and invalidate CloudFront
+        run: |
+          aws s3 sync dist "s3://${S3_BUCKET}" --delete
+          aws cloudfront create-invalidation --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" --paths "/*"

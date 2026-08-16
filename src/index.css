@@ -1,13 +1,55 @@
 :root {
-  --color-bg: #0a0a0a;
-  --color-text: #f5f5f5;
-  --color-text-muted: #a3a3a3;
-  --color-text-dim: #737373;
-  --color-border: #2a2a2a;
-  --color-input-bg: #141414;
-  --color-accent: #00c805;
-  --color-accent-hover: #00e006;
-  --color-accent-ring: rgba(0, 200, 5, 0.25);
+  /* Core surfaces */
+  --background: #0b0f14;
+  --surface: #11161d;
+  --surface-elevated: #171d25;
+  --surface-hover: #1d2530;
+
+  /* Text */
+  --text-primary: #f5f7fa;
+  --text-secondary: #a7b0be;
+  --text-muted: #6b7482;
+
+  /* Brand */
+  --primary: #4f8cff;
+  --primary-hover: #6a9dff;
+  --primary-soft: #1c3157;
+
+  /* Market */
+  --success: #22c55e;
+  --success-soft: #123a25;
+  --danger: #ef4444;
+  --danger-soft: #3d181b;
+  --warning: #f59e0b;
+
+  /* Borders / chart */
+  --border: #202833;
+  --border-strong: #2b3440;
+  --chart-line: #4f8cff;
+  --chart-grid: #202833;
+  --chart-crosshair: #6b7482;
+
+  /* Legacy aliases used across the app */
+  --color-bg: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-elevated);
+  --color-surface-hover: var(--surface-hover);
+  --color-text: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-text-dim: var(--text-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input-bg: var(--surface-elevated);
+  --color-accent: var(--primary);
+  --color-accent-hover: var(--primary-hover);
+  --color-accent-soft: var(--primary-soft);
+  --color-accent-ring: rgba(79, 140, 255, 0.28);
+  --color-gain: var(--success);
+  --color-gain-soft: var(--success-soft);
+  --color-loss: var(--danger);
+  --color-loss-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+
   font-family:
     'Inter',
     system-ui,
@@ -48,14 +90,14 @@ code {
   font-size: 0.85em;
   padding: 0.15em 0.4em;
   border-radius: 4px;
-  background: #1a1a1a;
+  background: var(--surface-elevated);
 }
 
 .auth-placeholder {
   margin: 0;
   padding: 1rem;
   border-radius: 8px;
-  background: #141414;
+  background: var(--surface);
   border: 1px dashed var(--color-border);
   color: var(--color-text-muted);
   font-size: 0.9rem;

@@ -9,7 +9,9 @@ import {
   getPendingSignUp,
   resendConfirmationCode,
   signIn,
+  storePendingNewPasswordChallenge,
 } from '../lib/cognito'
+import { isIdentityApiConfigured, registerWithBackend } from '../lib/identityApi'
 import './Login.css'
 
 export function ConfirmEmail() {
@@ -17,8 +19,16 @@ export function ConfirmEmail() {
   const location = useLocation()
   const { setSession } = useAuth()
 
-  const emailFromState =
-    (location.state as { email?: string } | null)?.email ?? ''
+  const routeState = location.state as {
+    email?: string
+    displayName?: string
+    cognitoSub?: string
+    syncWarning?: string
+  } | null
+  const emailFromState = routeState?.email ?? ''
+  const displayNameFromState = routeState?.displayName ?? ''
+  const cognitoSubFromState = routeState?.cognitoSub ?? ''
+  const syncWarning = routeState?.syncWarning ?? null
   const pending = getPendingSignUp()
   const email = emailFromState || pending?.email || ''
 
@@ -55,6 +65,24 @@ export function ConfirmEmail() {
       await confirmSignUp(email, trimmedCode)
 
       const signup = getPendingSignUp()
+      const cognitoSub = signup?.cognitoSub ?? cognitoSubFromState
+
+      if (
+        syncWarning &&
+        cognitoSub &&
+        isIdentityApiConfigured()
+      ) {
+        try {
+          await registerWithBackend({
+            email,
+            display_name: displayNameFromState || undefined,
+            cognito_sub: cognitoSub,
+          })
+        } catch {
+          // User is confirmed in Cognito; they can fix backend separately.
+        }
+      }
+
       if (signup?.email === email && signup.password) {
         const result = await signIn(email, signup.password)
         clearPendingSignUp()
@@ -68,6 +96,7 @@ export function ConfirmEmail() {
           return
         }
 
+        storePendingNewPasswordChallenge(result.cognitoUser, email)
         navigate('/change-password', {
           replace: true,
           state: { reason: 'new_password_required', email },
@@ -100,7 +129,9 @@ export function ConfirmEmail() {
     setIsResending(true)
     try {
       await resendConfirmationCode(email)
-      setSuccess('A new code was sent to your email.')
+      setSuccess(
+        'A new code was sent. Check your inbox and spam folder — it can take a few minutes.',
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not resend code.')
     } finally {
@@ -113,7 +144,7 @@ export function ConfirmEmail() {
       title="Confirm your email"
       subtitle={
         email
-          ? `Enter the code we sent to ${email}.`
+          ? `We sent a verification code to ${email}.`
           : 'Enter your verification code.'
       }
       footer={
@@ -125,6 +156,22 @@ export function ConfirmEmail() {
       }
     >
       <form className="login-form" onSubmit={handleSubmit} noValidate>
+        <div className="confirm-spam-notice" role="note">
+          <strong>Check your spam or junk folder</strong>
+          Verification emails often land there instead of your inbox — especially
+          the first time. Also look in Promotions or Updates if you use Gmail.
+          <ul>
+            <li>Sender may appear as Amazon Web Services or no-reply@verificationemail.com</li>
+            <li>Wait 2–3 minutes, then try <strong>Resend code</strong> below if you still don&apos;t see it</li>
+          </ul>
+        </div>
+
+        {syncWarning ? (
+          <div className="login-alert" role="alert">
+            Profile sync failed: {syncWarning}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="login-alert" role="alert">
             {error}
