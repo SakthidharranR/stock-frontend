@@ -172,7 +172,7 @@ export function Register() {
       subtitle={
         devBypass
           ? 'Dev mode: email and display name are sent to the identity backend only.'
-          : 'Create a StockForge account to start paper trading.'
+          : 'Create a MarketsForge account to start paper trading.'
       }
       footer={
         <p>

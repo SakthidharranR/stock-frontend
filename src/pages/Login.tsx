@@ -101,7 +101,7 @@ export function Login() {
       subtitle={
         devBypass
           ? 'Dev mode: enter any email to continue (Cognito skipped).'
-          : 'Welcome back to StockForge.'
+          : 'Welcome back to MarketsForge.'
       }
       footer={
         <p>
