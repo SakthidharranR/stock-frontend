@@ -1,0 +1,253 @@
+.account-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2.5rem;
+}
+
+.account-hero {
+  margin-bottom: 1.1rem;
+}
+
+.account-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-dim);
+}
+
+.account-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  word-break: break-word;
+}
+
+.account-buying-power {
+  margin: 0.45rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.account-buying-power strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.account-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  min-width: 0;
+}
+
+.account-panel--history {
+  grid-column: 1 / -1;
+}
+
+.account-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.account-hint {
+  margin: 0;
+  color: var(--color-text-dim);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.account-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.account-tabs button {
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-tabs button.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: var(--color-text-dim);
+}
+
+.account-field input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.account-field input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-ring);
+}
+
+.account-password-wrap {
+  position: relative;
+}
+
+.account-password-wrap input {
+  padding-right: 4rem;
+}
+
+.account-toggle-password {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.account-toggle-password:hover {
+  color: var(--color-accent);
+}
+
+.account-pw-hints {
+  margin: 0.25rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: var(--color-text-dim);
+  line-height: 1.4;
+}
+
+.account-error {
+  margin: 0;
+  color: var(--color-loss);
+  font-size: 0.85rem;
+}
+
+.account-success {
+  margin: 0;
+  color: var(--color-gain);
+  font-size: 0.85rem;
+}
+
+.account-submit {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-accent);
+  color: var(--text-primary);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.account-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+  max-height: 28rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+}
+
+.account-history-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.account-history-title {
+  display: block;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.account-history-title a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.account-history-title a:hover {
+  text-decoration: underline;
+}
+
+.account-history-meta {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.account-history-time {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--color-text-dim);
+}
+
+.account-history-amount {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.account-history-amount--in {
+  color: var(--color-gain);
+}
+
+.account-history-amount--out {
+  color: var(--color-loss);
+}
+
+@media (min-width: 820px) {
+  .account-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}

@@ -1,5 +1,6 @@
 import {
   AuthenticationDetails,
+  CognitoRefreshToken,
   CognitoUser,
   CognitoUserAttribute,
   CognitoUserPool,
@@ -79,6 +80,16 @@ function mapCognitoError(err: unknown): string {
   }
   if (message.includes('NotAuthorizedException')) {
     return 'Current password is incorrect.'
+  }
+  if (
+    message.toLowerCase().includes('cannot be reset') ||
+    message.toLowerCase().includes('external provider') ||
+    message.toLowerCase().includes('user password cannot be reset')
+  ) {
+    return (
+      'This account uses Google sign-in, so there is no password to change or reset. ' +
+      'Use Continue with Google on the login page.'
+    )
   }
 
   return message
@@ -391,4 +402,50 @@ export function changePassword(
 
 export function getCurrentCognitoUser(): CognitoUser | null {
   return getUserPool().getCurrentUser()
+}
+
+/** True when JWT is missing/malformed or expires within `skewSeconds`. */
+export function isJwtExpired(token: string, skewSeconds = 60): boolean {
+  try {
+    const payload = token.split('.')[1]
+    if (!payload) return true
+    const json = JSON.parse(
+      atob(payload.replace(/-/g, '+').replace(/_/g, '/')),
+    ) as { exp?: number }
+    if (!json.exp) return true
+    return json.exp * 1000 <= Date.now() + skewSeconds * 1000
+  } catch {
+    return true
+  }
+}
+
+/** Exchange a Cognito refresh token for a fresh access/id token pair. */
+export function refreshSessionTokens(
+  email: string,
+  refreshToken: string,
+): Promise<AuthTokens> {
+  if (isDevAuthBypass()) {
+    return Promise.reject(new Error('Token refresh is not used in dev auth bypass.'))
+  }
+
+  const normalizedEmail = email.trim().toLowerCase()
+  const cognitoUser = new CognitoUser({
+    Username: normalizedEmail,
+    Pool: getUserPool(),
+  })
+  const token = new CognitoRefreshToken({ RefreshToken: refreshToken })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.refreshSession(token, (err, session) => {
+      if (err || !session) {
+        reject(new Error(mapCognitoError(err ?? new Error('Session refresh failed'))))
+        return
+      }
+      resolve({
+        accessToken: session.getAccessToken().getJwtToken(),
+        idToken: session.getIdToken().getJwtToken(),
+        refreshToken: session.getRefreshToken().getToken() || refreshToken,
+      })
+    })
+  })
 }

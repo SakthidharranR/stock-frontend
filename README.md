@@ -13,6 +13,16 @@ npm run dev
 
 Open http://localhost:5173/login
 
+Production (S3 + CloudFront): copy `.env.production.example` to `.env.production`, then `.\scripts\deploy-cloudfront.ps1`. See [../DEPLOY.md](../DEPLOY.md).
+
+CI/CD (tests + auto-deploy): [CI.md](CI.md).
+
+## Tests
+
+```bash
+npm test
+```
+
 ## Routes
 
 | Path | Status |

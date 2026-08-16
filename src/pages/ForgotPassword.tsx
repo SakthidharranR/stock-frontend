@@ -4,6 +4,10 @@ import { AuthLayout } from '../components/AuthLayout'
 import { confirmForgotPassword, forgotPassword } from '../lib/cognito'
 import { isCognitoConfigured, isDevAuthBypass } from '../lib/cognitoConfig'
 import {
+  fetchPasswordOptions,
+  isIdentityApiConfigured,
+} from '../lib/identityApi'
+import {
   passwordsMatch,
   validatePassword,
 } from '../lib/passwordValidation'
@@ -23,6 +27,7 @@ export function ForgotPassword() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [ssoNotice, setSsoNotice] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const passwordIssues =
@@ -32,6 +37,7 @@ export function ForgotPassword() {
     event.preventDefault()
     setError(null)
     setSuccess(null)
+    setSsoNotice(null)
 
     if (devBypass) {
       setError('Password reset requires Cognito. Turn off VITE_DEV_SKIP_COGNITO.')
@@ -51,6 +57,21 @@ export function ForgotPassword() {
 
     setIsSubmitting(true)
     try {
+      if (isIdentityApiConfigured()) {
+        try {
+          const options = await fetchPasswordOptions(trimmedEmail)
+          if (options.found && !options.can_use_password) {
+            setSsoNotice(
+              options.message ??
+                'This account uses Google sign-in, so there is no password to reset. Use Continue with Google on the login page.',
+            )
+            return
+          }
+        } catch {
+          // Fall through to Cognito forgot-password if lookup fails.
+        }
+      }
+
       await forgotPassword(trimmedEmail)
       setEmail(trimmedEmail)
       setStep('confirm')
@@ -129,6 +150,12 @@ export function ForgotPassword() {
               {error}
             </div>
           ) : null}
+          {ssoNotice ? (
+            <div className="confirm-spam-notice" role="status">
+              <strong>Google sign-in account</strong>
+              {ssoNotice}
+            </div>
+          ) : null}
           {success ? (
             <div className="register-success" role="status">
               {success}
@@ -143,7 +170,10 @@ export function ForgotPassword() {
               autoComplete="email"
               placeholder="you@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setSsoNotice(null)
+              }}
               disabled={isSubmitting}
               required
             />
@@ -154,7 +184,7 @@ export function ForgotPassword() {
             className="login-submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Sending…' : 'Send reset code'}
+            {isSubmitting ? 'Checking…' : 'Send reset code'}
           </button>
         </form>
       ) : (

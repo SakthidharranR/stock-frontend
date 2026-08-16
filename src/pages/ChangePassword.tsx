@@ -9,6 +9,11 @@ import {
 } from '../lib/cognito'
 import { isCognitoConfigured, isDevAuthBypass } from '../lib/cognitoConfig'
 import {
+  externalProviderPasswordMessage,
+  getExternalProvidersFromIdToken,
+  isExternalProviderAccount,
+} from '../lib/authProviders'
+import {
   passwordsMatch,
   validatePassword,
 } from '../lib/passwordValidation'
@@ -22,12 +27,18 @@ type ChangePasswordState = {
 export function ChangePassword() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { setSession, isAuthenticated, email: sessionEmail } = useAuth()
+  const { setSession, isAuthenticated, email: sessionEmail, idToken } = useAuth()
   const devBypass = isDevAuthBypass()
 
   const state = (location.state as ChangePasswordState | null) ?? {}
   const isForced = state.reason === 'new_password_required'
   const forcedEmail = state.email ?? getPendingNewPasswordChallenge()?.email ?? ''
+
+  const ssoProviders = getExternalProvidersFromIdToken(idToken)
+  const isSsoAccount = !isForced && isExternalProviderAccount(idToken)
+  const ssoMessage = isSsoAccount
+    ? externalProviderPasswordMessage(ssoProviders)
+    : null
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [password, setPassword] = useState('')
@@ -152,6 +163,13 @@ export function ChangePassword() {
           </div>
         ) : null}
 
+        {isSsoAccount ? (
+          <div className="confirm-spam-notice" role="status">
+            <strong>Google sign-in account</strong>
+            {ssoMessage}
+          </div>
+        ) : null}
+
         {error ? (
           <div className="login-alert" role="alert">
             {error}
@@ -163,92 +181,100 @@ export function ChangePassword() {
           </div>
         ) : null}
 
-        {!isForced && !devBypass ? (
-          <label className="login-field">
-            <span className="login-label">Current password</span>
-            <div className="login-password-wrap">
+        {!isSsoAccount ? (
+          <>
+            {!isForced && !devBypass ? (
+              <label className="login-field">
+                <span className="login-label">Current password</span>
+                <div className="login-password-wrap">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    name="currentPassword"
+                    autoComplete="current-password"
+                    placeholder="Your current password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    disabled={isSubmitting}
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="login-toggle-password"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+              </label>
+            ) : null}
+
+            <label className="login-field">
+              <span className="login-label">New password</span>
+              <div className="login-password-wrap">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  autoComplete="new-password"
+                  placeholder="New password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-toggle-password"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+              {passwordIssues.length > 0 ? (
+                <ul className="register-hints">
+                  {passwordIssues.map((issue) => (
+                    <li key={issue}>{issue}</li>
+                  ))}
+                </ul>
+              ) : password.length > 0 ? (
+                <p className="register-hints-ok">Password meets requirements</p>
+              ) : null}
+            </label>
+
+            <label className="login-field">
+              <span className="login-label">Confirm new password</span>
               <input
                 type={showPassword ? 'text' : 'password'}
-                name="currentPassword"
-                autoComplete="current-password"
-                placeholder="Your current password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
+                name="confirmPassword"
+                autoComplete="new-password"
+                placeholder="Re-enter new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={isSubmitting}
                 required
               />
-              <button
-                type="button"
-                className="login-toggle-password"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                tabIndex={-1}
-              >
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
-            </div>
-          </label>
-        ) : null}
+            </label>
 
-        <label className="login-field">
-          <span className="login-label">New password</span>
-          <div className="login-password-wrap">
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              autoComplete="new-password"
-              placeholder="New password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
             <button
-              type="button"
-              className="login-toggle-password"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              tabIndex={-1}
+              type="submit"
+              className="login-submit"
+              disabled={isSubmitting}
             >
-              {showPassword ? 'Hide' : 'Show'}
+              {isSubmitting
+                ? 'Saving…'
+                : isForced
+                  ? 'Set password & continue'
+                  : 'Update password'}
             </button>
-          </div>
-          {passwordIssues.length > 0 ? (
-            <ul className="register-hints">
-              {passwordIssues.map((issue) => (
-                <li key={issue}>{issue}</li>
-              ))}
-            </ul>
-          ) : password.length > 0 ? (
-            <p className="register-hints-ok">Password meets requirements</p>
-          ) : null}
-        </label>
-
-        <label className="login-field">
-          <span className="login-label">Confirm new password</span>
-          <input
-            type={showPassword ? 'text' : 'password'}
-            name="confirmPassword"
-            autoComplete="new-password"
-            placeholder="Re-enter new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            disabled={isSubmitting}
-            required
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="login-submit"
-          disabled={isSubmitting}
-        >
-          {isSubmitting
-            ? 'Saving…'
-            : isForced
-              ? 'Set password & continue'
-              : 'Update password'}
-        </button>
+          </>
+        ) : (
+          <Link to="/login" className="login-submit" style={{ textAlign: 'center', display: 'block', textDecoration: 'none' }}>
+            Back to log in
+          </Link>
+        )}
       </form>
     </AuthLayout>
   )

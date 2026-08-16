@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { AppShell } from './components/AppShell'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { isDevAuthBypass } from './lib/cognitoConfig'
 import { Login } from './pages/Login'
@@ -9,6 +10,9 @@ import { ForgotPassword } from './pages/ForgotPassword'
 import { ChangePassword } from './pages/ChangePassword'
 import { AuthCallback } from './pages/AuthCallback'
 import { Home } from './pages/Home'
+import { SearchPage } from './pages/SearchPage'
+import { StockDetail } from './pages/StockDetail'
+import { Account } from './pages/Account'
 
 export default function App() {
   return (
@@ -28,13 +32,18 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
           <Route
-            path="/home"
             element={
               <ProtectedRoute>
-                <Home />
+                <AppShell />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route path="/home" element={<Home />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/transfer" element={<Navigate to="/account" replace />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/stock/:symbol" element={<StockDetail />} />
+          </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>

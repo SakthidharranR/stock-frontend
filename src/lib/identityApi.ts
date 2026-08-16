@@ -1,3 +1,5 @@
+import { buildAuthHeaders } from './apiAuth'
+
 export type RegisterPayload = {
   email: string
   display_name?: string
@@ -9,6 +11,14 @@ export type RegisterResponse = {
   display_name?: string
   cognito_sub: string
   message: string
+}
+
+export type PasswordOptionsResponse = {
+  email: string
+  found: boolean
+  can_use_password: boolean
+  providers: string[]
+  message: string | null
 }
 
 export function isIdentityApiConfigured(): boolean {
@@ -48,6 +58,33 @@ export async function registerWithBackend(
   }
 
   return res.json() as Promise<RegisterResponse>
+}
+
+export async function fetchCurrentUser(
+  accessToken: string | null,
+  email: string | null,
+): Promise<{ id: string; email: string; display_name?: string }> {
+  const headers = buildAuthHeaders(accessToken, email)
+  const res = await fetch(`${getIdentityApiUrl()}/users/me`, { headers })
+  if (!res.ok) {
+    throw new Error(`Failed to fetch profile (${res.status})`)
+  }
+  return res.json()
+}
+
+export async function fetchPasswordOptions(
+  email: string,
+): Promise<PasswordOptionsResponse> {
+  const res = await fetch(`${getIdentityApiUrl()}/auth/password-options`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  })
+  if (!res.ok) {
+    const body = (await res.json().catch(() => null)) as { error?: string } | null
+    throw new Error(body?.error ?? `Password options failed (${res.status})`)
+  }
+  return res.json() as Promise<PasswordOptionsResponse>
 }
 
 /** Creates profile on first sign-in; ignores duplicate user errors on return visits. */
