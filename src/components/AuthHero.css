@@ -7,6 +7,16 @@
   min-height: 100vh;
 }
 
+.auth-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(155, 182, 255, 0.14) 1px, transparent 1.2px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 78%);
+  pointer-events: none;
+}
+
 @media (min-width: 900px) {
   .auth-hero {
     display: flex;
