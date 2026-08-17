@@ -141,6 +141,7 @@ export function startGoogleSignIn(redirectTo = '/home'): void {
       code_challenge: challenge,
       code_challenge_method: 'S256',
       identity_provider: 'Google',
+      prompt: 'select_account',
     })
 
     const authorizeUrl = `https://${domain}/oauth2/authorize?${params.toString()}`

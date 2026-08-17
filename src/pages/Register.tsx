@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout'
 import { GoogleSignInButton } from '../components/GoogleSignInButton'
 import { useAuth } from '../context/AuthContext'
+import { PRODUCT_NAME } from '../lib/brand'
 import {
   isCognitoConfigured,
   isDevAuthBypass,
@@ -172,7 +173,7 @@ export function Register() {
       subtitle={
         devBypass
           ? 'Dev mode: email and display name are sent to the identity backend only.'
-          : 'Create your account to get started.'
+          : `Create a ${PRODUCT_NAME} account to start paper trading.`
       }
       footer={
         <p>
