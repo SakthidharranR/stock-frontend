@@ -4,6 +4,7 @@ import { AuthLayout } from '../components/AuthLayout'
 import { GoogleSignInButton } from '../components/GoogleSignInButton'
 import { AuthDevPanel } from '../components/AuthDevPanel'
 import { useAuth } from '../context/AuthContext'
+import { PRODUCT_NAME } from '../lib/brand'
 import { isCognitoConfigured, isDevAuthBypass, devAuthTokens } from '../lib/cognitoConfig'
 import { signIn, storePendingNewPasswordChallenge } from '../lib/cognito'
 import './Login.css'
@@ -101,7 +102,7 @@ export function Login() {
       subtitle={
         devBypass
           ? 'Dev mode: enter any email to continue (Cognito skipped).'
-          : 'Welcome back to MarketsForge.'
+          : `Welcome back to ${PRODUCT_NAME}.`
       }
       footer={
         <p>

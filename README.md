@@ -1,4 +1,4 @@
-# MarketsForge frontend
+# Markets Forge frontend
 
 React + Vite app for auth flows (Cognito) and future trading UI.
 
