@@ -135,3 +135,7 @@ export function quoteToStock(quote: QuoteResult) {
 export function candlesToSeries(points: CandlePoint[]): number[] {
   return points.map((p) => p.close)
 }
+
+export function candlesToTimes(points: CandlePoint[]): number[] {
+  return points.map((p) => p.time)
+}

@@ -14,6 +14,7 @@ import {
 } from '../data/mockMarket'
 import {
   candlesToSeries,
+  candlesToTimes,
   getCandles,
   getNews,
   getQuote,
@@ -75,6 +76,7 @@ export function StockDetail() {
   const [activity, setActivity] = useState<OrderItem[]>([])
   const [range, setRange] = useState<ChartRange>('1D')
   const [series, setSeries] = useState<number[]>([])
+  const [chartTimes, setChartTimes] = useState<number[]>([])
   const [news, setNews] = useState<
     { id: string; headline: string; source: string; timeAgo: string; url?: string }[]
   >([])
@@ -106,6 +108,7 @@ export function StockDetail() {
       setHolding(undefined)
       setActivity([])
       setSeries([])
+      setChartTimes([])
       setNews([])
       setNotFound(false)
     }
@@ -116,6 +119,7 @@ export function StockDetail() {
       setHolding(findHolding(sym))
       setActivity([])
       setSeries(mock ? getStockSeries(mock.symbol, range) : [])
+      setChartTimes([])
       setNews(mock ? getMockNews(mock.symbol) : [])
       setNotFound(!mock)
       setReady(true)
@@ -153,11 +157,13 @@ export function StockDetail() {
             .then((candles) => {
               if (loadId !== loadGenerationRef.current) return
               setSeries(candlesToSeries(candles.points))
+              setChartTimes(candlesToTimes(candles.points))
             })
             .catch((err: unknown) => {
               if (loadId !== loadGenerationRef.current) return
               setChartError(err instanceof Error ? err.message : 'Chart unavailable')
               setSeries([])
+              setChartTimes([])
             })
         : Promise.resolve()
 
@@ -358,6 +364,7 @@ export function StockDetail() {
                   <div className="stock-detail-chart-wrap">
                     <LineChart
                       data={series}
+                      times={chartTimes}
                       positive={isUp}
                       height={280}
                       baseline={stock.price - stock.change}
