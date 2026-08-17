@@ -1,7 +1,9 @@
 import { useId } from 'react'
+import { scaleChartX } from '../lib/portfolioDisplay'
 
 type LineChartProps = {
   data: number[]
+  times?: number[]
   positive?: boolean
   height?: number
   className?: string
@@ -11,6 +13,7 @@ type LineChartProps = {
 
 export function LineChart({
   data,
+  times,
   positive = true,
   height = 200,
   className = '',
@@ -26,9 +29,10 @@ export function LineChart({
   const ref = baseline ?? data[0]
   const halfSpan = Math.max(...data.map((value) => Math.abs(value - ref)), 0.0001)
   const plotHalf = height / 2 - padding
+  const xs = scaleChartX(times, data.length, width, padding)
 
   const points = data.map((value, index) => {
-    const x = padding + (index / (data.length - 1)) * (width - padding * 2)
+    const x = xs[index] ?? padding
     const y = height / 2 - ((value - ref) / halfSpan) * plotHalf
     return { x, y }
   })

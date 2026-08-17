@@ -30,6 +30,7 @@ import {
   isPortfolioApiConfigured,
 } from '../lib/portfolioApi'
 import {
+  chartPointTimes,
   chartPointsToSeries,
   portfolioChangeHint,
   portfolioSeriesFromSummary,
@@ -97,6 +98,7 @@ export function Dashboard() {
     cash: 0,
   })
   const [chartSeries, setChartSeries] = useState<number[]>([])
+  const [chartTimes, setChartTimes] = useState<number[]>([])
   const [useLive, setUseLive] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [ready, setReady] = useState(mockMode)
@@ -113,6 +115,7 @@ export function Dashboard() {
       setSuggestions(MOCK_SUGGESTIONS)
       setSummary({ ...mockSummary, cash: 2400 })
       setChartSeries(getPortfolioSeries(range))
+      setChartTimes([])
       setNews(
         MOCK_HOLDINGS.flatMap((h) =>
           getMockNews(h.symbol).slice(0, 2).map((n, i) => ({
@@ -135,6 +138,7 @@ export function Dashboard() {
       setHoldings([])
       setSummary({ value: 0, change: 0, changePercent: 0, cash: 0 })
       setChartSeries([])
+      setChartTimes([])
       setNews([])
       setUseLive(false)
       setReady(true)
@@ -164,6 +168,7 @@ export function Dashboard() {
           cash: portfolio.cash_balance,
         })
         setChartSeries(chartPointsToSeries(portfolio.chart_points))
+        setChartTimes(chartPointTimes(portfolio.chart_points))
         setHoldings(nextHoldings)
         portfolioLoaded = true
       }
@@ -202,6 +207,7 @@ export function Dashboard() {
         setHoldings([])
         setSummary({ value: 0, change: 0, changePercent: 0, cash: 0 })
         setChartSeries([])
+        setChartTimes([])
         setNews([])
       }
       setReady(true)
@@ -312,7 +318,7 @@ export function Dashboard() {
               </div>
 
               <div className="portfolio-chart-wrap">
-                <LineChart data={series} positive={isUp} height={280} />
+                <LineChart data={series} times={chartTimes} positive={isUp} height={280} />
               </div>
 
               <div className="portfolio-chart-footer">

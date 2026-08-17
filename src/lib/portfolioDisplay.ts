@@ -6,6 +6,32 @@ export function chartPointsToSeries(points: { time: number; value: number }[]): 
   return points.map((p) => p.value)
 }
 
+export function chartPointTimes(points: { time: number; value: number }[]): number[] {
+  return points.map((p) => p.time)
+}
+
+export function scaleChartX(
+  times: number[] | undefined,
+  count: number,
+  width: number,
+  padding: number,
+): number[] {
+  const span = width - padding * 2
+  if (count < 2) {
+    return Array.from({ length: count }, () => padding)
+  }
+  if (!times || times.length !== count) {
+    return Array.from(
+      { length: count },
+      (_, index) => padding + (index / (count - 1)) * span,
+    )
+  }
+  const start = times[0]
+  const end = times[times.length - 1]
+  const duration = Math.max(end - start, 1)
+  return times.map((time) => padding + ((time - start) / duration) * span)
+}
+
 export function portfolioSeriesFromSummary(
   chartSeries: number[],
   totalValue: number,

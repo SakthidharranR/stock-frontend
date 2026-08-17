@@ -3,6 +3,7 @@ import {
   holdingToStock,
   portfolioChangeHint,
   portfolioSeriesFromSummary,
+  scaleChartX,
   toPortfolioDisplaySummary,
 } from '../portfolioDisplay'
 import type { HoldingItem } from '../portfolioApi'
@@ -72,6 +73,19 @@ describe('chartPointsToSeries', () => {
 
   it('returns empty for no points', () => {
     expect(chartPointsToSeries([])).toEqual([])
+  })
+})
+
+describe('scaleChartX', () => {
+  it('spaces points evenly when times are missing', () => {
+    expect(scaleChartX(undefined, 3, 100, 0)).toEqual([0, 50, 100])
+  })
+
+  it('places a late point near the right edge', () => {
+    const xs = scaleChartX([0, 90, 100], 3, 100, 0)
+    expect(xs[0]).toBe(0)
+    expect(xs[1]).toBe(90)
+    expect(xs[2]).toBe(100)
   })
 })
 
