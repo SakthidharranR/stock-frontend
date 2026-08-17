@@ -1,6 +1,9 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AppHeader } from './AppHeader'
 import { PRODUCT_NAME } from '../lib/brand'
+import { Account } from '../pages/Account'
+import { Home } from '../pages/Home'
 import './AppShell.css'
 
 const NAV = [
@@ -10,6 +13,15 @@ const NAV = [
 ]
 
 export function AppShell() {
+  const { pathname } = useLocation()
+  const onPortfolio = pathname === '/home'
+  const onAccount = pathname === '/account'
+  const [keepAccount, setKeepAccount] = useState(onAccount)
+
+  useEffect(() => {
+    if (onAccount) setKeepAccount(true)
+  }, [onAccount])
+
   return (
     <div className="app-shell">
       <aside className="app-sidebar" aria-label="Main">
@@ -34,7 +46,15 @@ export function AppShell() {
 
       <div className="app-shell-main">
         <AppHeader showBrand={false} />
-        <Outlet />
+        <div className={onPortfolio ? undefined : 'app-shell-page--inactive'}>
+          <Home />
+        </div>
+        {keepAccount ? (
+          <div className={onAccount ? undefined : 'app-shell-page--inactive'}>
+            <Account />
+          </div>
+        ) : null}
+        {onPortfolio || onAccount ? null : <Outlet />}
       </div>
     </div>
   )
