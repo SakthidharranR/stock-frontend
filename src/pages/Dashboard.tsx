@@ -6,6 +6,7 @@ import { DashboardSkeleton } from '../components/DashboardSkeleton'
 import { LineChart } from '../components/LineChart'
 import { StockRow } from '../components/StockRow'
 import { useAuth } from '../context/AuthContext'
+import { GITHUB_BACKEND_URL, GITHUB_FRONTEND_URL } from '../lib/brand'
 import type { ChartRange, Holding, Stock } from '../data/mockMarket'
 import {
   MOCK_HOLDINGS,
@@ -438,6 +439,26 @@ export function Dashboard() {
             </section>
           </div>
         )}
+
+        <footer className="dash-source">
+          <span className="dash-source-label">Source</span>
+          <a
+            href={GITHUB_FRONTEND_URL}
+            className="dash-source-link"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Frontend
+          </a>
+          <a
+            href={GITHUB_BACKEND_URL}
+            className="dash-source-link"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Backend
+          </a>
+        </footer>
       </main>
     </div>
   )
