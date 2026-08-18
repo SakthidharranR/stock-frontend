@@ -407,3 +407,31 @@ a.dash-news-headline:hover {
     padding-inline: 1.5rem;
   }
 }
+
+.dash-source {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-top: 0.5rem;
+  padding: 0.85rem 0.15rem 0.25rem;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-dim);
+  font-size: 0.8rem;
+}
+
+.dash-source-label {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dash-source-link {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.dash-source-link:hover {
+  text-decoration: underline;
+}
