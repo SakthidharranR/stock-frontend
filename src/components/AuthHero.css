@@ -40,6 +40,7 @@
   width: 100%;
   height: 100%;
   opacity: 0.95;
+  pointer-events: none;
 }
 
 .auth-hero-line {
@@ -58,6 +59,12 @@
   z-index: 1;
   padding: 3rem 3.25rem 3.5rem;
   max-width: 34rem;
+}
+
+.auth-hero-copy .source-links {
+  position: relative;
+  z-index: 1;
+  margin-top: 1.75rem;
 }
 
 .auth-hero-kicker {

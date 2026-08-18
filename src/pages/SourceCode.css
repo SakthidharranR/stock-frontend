@@ -1,0 +1,32 @@
+.source-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2.5rem;
+}
+
+.source-page-hero {
+  margin-bottom: 1.5rem;
+}
+
+.source-page-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-dim);
+}
+
+.source-page-title {
+  margin: 0 0 0.65rem;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.source-page-body {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+}

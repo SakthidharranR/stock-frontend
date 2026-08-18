@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PRODUCT_NAME } from '../lib/brand'
 import { AuthHero } from './AuthHero'
+import { SourceCodeLinks } from './SourceCodeLinks'
 import './AuthLayout.css'
 
 type AuthLayoutProps = {
@@ -28,6 +29,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             {children}
           </div>
           {footer ? <div className="auth-footer">{footer}</div> : null}
+          <SourceCodeLinks variant="panel" />
         </main>
       </div>
     </div>
