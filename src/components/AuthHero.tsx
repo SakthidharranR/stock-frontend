@@ -1,11 +1,17 @@
 import { PRODUCT_NAME, PRODUCT_TAGLINE } from '../lib/brand'
+import { SourceCodeLinks } from './SourceCodeLinks'
 import './AuthHero.css'
 
 export function AuthHero() {
   return (
-    <aside className="auth-hero" aria-hidden>
-      <div className="auth-hero-glow" />
-      <svg className="auth-hero-chart" viewBox="0 0 640 720" preserveAspectRatio="xMidYMid slice">
+    <aside className="auth-hero">
+      <div className="auth-hero-glow" aria-hidden />
+      <svg
+        className="auth-hero-chart"
+        viewBox="0 0 640 720"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden
+      >
         <defs>
           <linearGradient id="authHeroStroke" x1="0" y1="1" x2="1" y2="0">
             <stop offset="0%" stopColor="#3d7eff" />
@@ -38,6 +44,7 @@ export function AuthHero() {
           Paper-trade US stocks with live market data. No real money. Built for interviews,
           practice, and getting the feel of a real brokerage.
         </p>
+        <SourceCodeLinks variant="hero" />
       </div>
     </aside>
   )

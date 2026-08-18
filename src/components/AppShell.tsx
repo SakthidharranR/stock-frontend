@@ -4,18 +4,21 @@ import { AppHeader } from './AppHeader'
 import { PRODUCT_NAME } from '../lib/brand'
 import { Account } from '../pages/Account'
 import { Home } from '../pages/Home'
+import { SourceCode } from '../pages/SourceCode'
 import './AppShell.css'
 
 const NAV = [
   { to: '/home', label: 'Portfolio', end: true },
   { to: '/account', label: 'Account' },
   { to: '/search', label: 'Search' },
+  { to: '/source', label: 'Source code' },
 ]
 
 export function AppShell() {
   const { pathname } = useLocation()
   const onPortfolio = pathname === '/home'
   const onAccount = pathname === '/account'
+  const onSource = pathname === '/source'
   const [keepAccount, setKeepAccount] = useState(onAccount)
 
   useEffect(() => {
@@ -54,7 +57,8 @@ export function AppShell() {
             <Account />
           </div>
         ) : null}
-        {onPortfolio || onAccount ? null : <Outlet />}
+        {onSource ? <SourceCode /> : null}
+        {onPortfolio || onAccount || onSource ? null : <Outlet />}
       </div>
     </div>
   )

@@ -13,6 +13,7 @@ import { Home } from './pages/Home'
 import { SearchPage } from './pages/SearchPage'
 import { StockDetail } from './pages/StockDetail'
 import { Account } from './pages/Account'
+import { SourceCode } from './pages/SourceCode'
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/account" element={<Account />} />
             <Route path="/transfer" element={<Navigate to="/account" replace />} />
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/source" element={<SourceCode />} />
             <Route path="/stock/:symbol" element={<StockDetail />} />
           </Route>
           <Route path="*" element={<Navigate to="/login" replace />} />
